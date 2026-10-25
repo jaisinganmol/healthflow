@@ -109,3 +109,23 @@ async def handle_discharge_event(event: DischargeEventRequest):
         "discrepancies": result.get("discrepancies", []),
         "allowable_reimbursement": result.get("allowable_reimbursement")
     }
+
+@router.get("/patients/search")
+async def search_ehr_patients(
+    family: Optional[str] = None,
+    given: Optional[str] = None,
+    limit: int = 10
+):
+    """
+    Dynamically search patients from Epic on FHIR (or configured EHR).
+    """
+    from src.infrastructure.ehr.factory import get_ehr_client
+    ehr = get_ehr_client()
+    try:
+        patients = await ehr.search_patients(family=family, given=given, limit=limit)
+        return {
+            "count": len(patients),
+            "patients": [p.model_dump() for p in patients]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"EHR search failed: {str(e)}")

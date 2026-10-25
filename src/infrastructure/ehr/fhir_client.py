@@ -78,6 +78,58 @@ class FHIRRestClient(EHRClient):
             except httpx.HTTPError as e:
                 raise EHRConnectionError(f"Failed to fetch Patient/{patient_id}: {str(e)}")
 
+    async def search_patients(
+        self,
+        family: Optional[str] = None,
+        given: Optional[str] = None,
+        patient_ids: Optional[List[str]] = None,
+        limit: int = 10
+    ) -> List[FHIRPatient]:
+        """
+        Dynamically fetch multiple patients from Epic FHIR R4.
+        Supports filtering by family/given name or batch querying specific patient IDs.
+        """
+        headers = await self._get_auth_headers()
+        patients = []
+
+        if patient_ids:
+            for pid in patient_ids[:limit]:
+                try:
+                    p = await self.get_patient(pid)
+                    patients.append(p)
+                except Exception:
+                    continue
+            return patients
+
+        async with httpx.AsyncClient() as client:
+            params = {"_count": str(limit)}
+            if family:
+                params["family"] = family
+            if given:
+                params["given"] = given
+
+            # In Epic Open Sandbox, Patient.Search requires at least one demographic param
+            if not family and not given:
+                params["family"] = "Smith"
+
+            try:
+                resp = await client.get(
+                    f"{self.base_url}/Patient",
+                    params=params,
+                    headers=headers,
+                    timeout=10.0
+                )
+                resp.raise_for_status()
+                bundle = resp.json()
+                for entry in bundle.get("entry", []):
+                    res = entry.get("resource", {})
+                    if res.get("resourceType") == "Patient":
+                        patients.append(FHIRPatient(**res))
+            except httpx.HTTPError as e:
+                raise EHRConnectionError(f"Failed to search patients: {str(e)}")
+
+        return patients
+
     async def get_active_conditions(self, patient_id: str) -> List[FHIRCondition]:
         headers = await self._get_auth_headers()
         async with httpx.AsyncClient() as client:
@@ -106,13 +158,22 @@ class FHIRRestClient(EHRClient):
     async def get_medication_statements(self, patient_id: str) -> List[FHIRMedicationStatement]:
         headers = await self._get_auth_headers()
         async with httpx.AsyncClient() as client:
-            try:
-                resp = await client.get(f"{self.base_url}/MedicationStatement?patient={patient_id}&status=active", headers=headers, timeout=10.0)
-                resp.raise_for_status()
-                bundle = resp.json()
-                return [FHIRMedicationStatement(**e["resource"]) for e in bundle.get("entry", [])]
-            except httpx.HTTPError as e:
-                raise EHRConnectionError(f"Failed to fetch Medications: {str(e)}")
+            # Epic FHIR R4 primarily implements MedicationRequest for outpatient prescriptions
+            for resource_name in ["MedicationRequest", "MedicationStatement"]:
+                try:
+                    resp = await client.get(
+                        f"{self.base_url}/{resource_name}?patient={patient_id}&status=active",
+                        headers=headers,
+                        timeout=10.0
+                    )
+                    if resp.status_code == 200:
+                        bundle = resp.json()
+                        meds = [FHIRMedicationStatement(**e["resource"]) for e in bundle.get("entry", [])]
+                        if meds:
+                            return meds
+                except Exception:
+                    continue
+            return []
 
     async def get_allergies(self, patient_id: str) -> List[FHIRAllergyIntolerance]:
         headers = await self._get_auth_headers()

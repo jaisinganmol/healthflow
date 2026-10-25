@@ -31,6 +31,29 @@ class MockEHRClient(EHRClient):
                 return FHIRPatient(**res)
         raise MissingClinicalDataException(f"Patient {patient_id} not found in bundle")
 
+    async def search_patients(
+        self,
+        family: Optional[str] = None,
+        given: Optional[str] = None,
+        patient_ids: Optional[List[str]] = None,
+        limit: int = 10
+    ) -> List[FHIRPatient]:
+        patients = []
+        for entry in self._raw.get("entry", []):
+            res = entry.get("resource", {})
+            if res.get("resourceType") == "Patient":
+                p = FHIRPatient(**res)
+                if patient_ids and p.id not in patient_ids:
+                    continue
+                if family and family.lower() not in p.name.lower():
+                    continue
+                if given and given.lower() not in p.name.lower():
+                    continue
+                patients.append(p)
+                if len(patients) >= limit:
+                    break
+        return patients
+
     async def get_active_conditions(self, patient_id: str) -> List[FHIRCondition]:
         conditions = []
         for entry in self._raw.get("entry", []):

@@ -13,6 +13,17 @@ class EHRClient(ABC):
         pass
 
     @abstractmethod
+    async def search_patients(
+        self,
+        family: Optional[str] = None,
+        given: Optional[str] = None,
+        patient_ids: Optional[List[str]] = None,
+        limit: int = 10
+    ) -> List[FHIRPatient]:
+        """Search or batch-retrieve multiple patient records."""
+        pass
+
+    @abstractmethod
     async def get_active_conditions(self, patient_id: str) -> List[FHIRCondition]:
         """Fetch active problem list / ICD-10 diagnoses."""
         pass
