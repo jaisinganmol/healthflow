@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healthflow-ai
+  namespace: healthflow
+  labels:
+    app.kubernetes.io/name: healthflow-ai
+    app.kubernetes.io/part-of: healthflow-platform
+    app.kubernetes.io/tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: healthflow-ai
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: healthflow-ai
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532  # nonroot user in distroless
+        runAsGroup: 65532
+        fsGroup: 65532
+      containers:
+        - name: healthflow-ai
+          image: healthflow-ai:latest
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: healthflow-config
+            - secretRef:
+                name: healthflow-secrets
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2

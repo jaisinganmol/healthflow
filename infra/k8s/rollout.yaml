@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: healthflow-ai-rollout
+  namespace: healthflow
+  labels:
+    app.kubernetes.io/name: healthflow-ai
+spec:
+  replicas: 4
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: healthflow-ai
+  strategy:
+    blueGreen:
+      activeService: healthflow-ai-active
+      previewService: healthflow-ai-preview
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: 60
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: healthflow-ai
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+      containers:
+        - name: healthflow-ai
+          image: healthflow-ai:0.1.0
+          ports:
+            - name: http
+              containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: healthflow-config
+            - secretRef:
+                name: healthflow-secrets
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10

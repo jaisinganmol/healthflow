@@ -1,0 +1,82 @@
+name: HealthFlow Production CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-security:
+    name: Lint, Typecheck & Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv & Dependencies
+        run: |
+          pip install --upgrade pip uv
+          uv pip install --system -e ".[dev]"
+
+      - name: Code Formatting & Linting (Ruff)
+        run: |
+          ruff check src tests scripts
+
+      - name: Security Static Analysis (Bandit)
+        run: |
+          bandit -r src/ -ll
+
+  test-and-eval:
+    name: Unit, Integration & Clinical Benchmark Tests
+    needs: lint-and-security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv & Dependencies
+        run: |
+          pip install --upgrade pip uv
+          uv pip install --system -e ".[dev]"
+
+      - name: Run Pytest Suite with Coverage
+        run: |
+          pytest tests/ -v --cov=src --cov-report=xml
+
+      - name: Run Clinical Hallucination & Gate Regression Benchmarks
+        run: |
+          python scripts/simulate_journey.py
+          pytest tests/eval/ -v
+
+  docker-build:
+    name: Container Build & Distroless Verification
+    needs: test-and-eval
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: actions/setup-buildx-action@v3
+
+      - name: Build Container Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: healthflow-ai:latest

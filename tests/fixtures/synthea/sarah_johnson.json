@@ -1,0 +1,203 @@
+{
+  "resourceType": "Bundle",
+  "id": "bundle-sarah-johnson",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "pat-sarah-j",
+        "mrn": "MRN-984210",
+        "name": "Sarah Johnson",
+        "birthDate": "1957-01-15",
+        "gender": "female",
+        "telecom_phone": "+15551234567"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-01",
+        "code": {
+          "coding": [{"system": "http://hl7.org/fhir/sid/icd-10-cm", "code": "M17.11", "display": "Primary osteoarthritis, right hip"}],
+          "text": "Primary osteoarthritis, right hip"
+        },
+        "clinicalStatus": "active",
+        "verificationStatus": "confirmed",
+        "onsetDateTime": "2021-03-12T00:00:00Z"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-02",
+        "code": {
+          "coding": [{"system": "http://hl7.org/fhir/sid/icd-10-cm", "code": "I10", "display": "Essential (primary) hypertension"}],
+          "text": "Essential (primary) hypertension"
+        },
+        "clinicalStatus": "active",
+        "verificationStatus": "confirmed",
+        "onsetDateTime": "2015-08-10T00:00:00Z"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-03",
+        "code": {
+          "coding": [{"system": "http://hl7.org/fhir/sid/icd-10-cm", "code": "E11.9", "display": "Type 2 diabetes mellitus without complications"}],
+          "text": "Type 2 diabetes mellitus without complications"
+        },
+        "clinicalStatus": "active",
+        "verificationStatus": "confirmed",
+        "onsetDateTime": "2018-05-20T00:00:00Z"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-04",
+        "code": {
+          "coding": [{"system": "http://hl7.org/fhir/sid/icd-10-cm", "code": "N18.30", "display": "Chronic kidney disease, stage 3 unspecified"}],
+          "text": "Chronic kidney disease, stage 3a (CKD)"
+        },
+        "clinicalStatus": "active",
+        "verificationStatus": "confirmed",
+        "onsetDateTime": "2023-01-15T00:00:00Z"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-hgb",
+        "code": {
+          "coding": [{"system": "http://loinc.org", "code": "718-7", "display": "Hemoglobin"}],
+          "text": "Hemoglobin [Mass/volume] in Blood"
+        },
+        "status": "final",
+        "effectiveDateTime": "2026-04-10T08:30:00Z",
+        "valueQuantity_value": 11.2,
+        "valueQuantity_unit": "g/dL"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-egfr",
+        "code": {
+          "coding": [{"system": "http://loinc.org", "code": "33914-3", "display": "eGFR"}],
+          "text": "Glomerular filtration rate/1.73 sq M.predicted"
+        },
+        "status": "final",
+        "effectiveDateTime": "2026-04-10T08:30:00Z",
+        "valueQuantity_value": 52.0,
+        "valueQuantity_unit": "mL/min/1.73m2"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-creat",
+        "code": {
+          "coding": [{"system": "http://loinc.org", "code": "2160-0", "display": "Creatinine"}],
+          "text": "Creatinine [Mass/volume] in Serum or Plasma"
+        },
+        "status": "final",
+        "effectiveDateTime": "2026-04-10T08:30:00Z",
+        "valueQuantity_value": 1.4,
+        "valueQuantity_unit": "mg/dL"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-hba1c",
+        "code": {
+          "coding": [{"system": "http://loinc.org", "code": "4548-4", "display": "Hemoglobin A1c"}],
+          "text": "Hemoglobin A1c/Hemoglobin.total in Blood"
+        },
+        "status": "final",
+        "effectiveDateTime": "2026-04-10T08:30:00Z",
+        "valueQuantity_value": 7.2,
+        "valueQuantity_unit": "%"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-trop",
+        "code": {
+          "coding": [{"system": "http://loinc.org", "code": "49563-0", "display": "Troponin I.cardiac"}],
+          "text": "Cardiac Troponin I [Mass/volume] in Serum or Plasma"
+        },
+        "status": "final",
+        "effectiveDateTime": "2026-04-10T08:30:00Z",
+        "valueQuantity_value": 0.02,
+        "valueQuantity_unit": "ng/mL"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "med-metformin",
+        "medicationCodeableConcept": {
+          "coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "860975", "display": "Metformin hydrochloride 1000 MG"}],
+          "text": "Metformin 1000mg oral tablet"
+        },
+        "status": "active",
+        "effectiveDateTime": "2026-01-01T00:00:00Z",
+        "dosage_text": "Metformin 1000mg oral tablet twice daily with meals"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "med-lisinopril",
+        "medicationCodeableConcept": {
+          "coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "314076", "display": "Lisinopril 10 MG"}],
+          "text": "Lisinopril 10mg oral tablet"
+        },
+        "status": "active",
+        "effectiveDateTime": "2026-01-01T00:00:00Z",
+        "dosage_text": "Lisinopril 10mg oral tablet once daily in morning"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "med-aspirin",
+        "medicationCodeableConcept": {
+          "coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "243670", "display": "Aspirin 81 MG"}],
+          "text": "Aspirin 81mg chewable tablet"
+        },
+        "status": "active",
+        "effectiveDateTime": "2026-01-01T00:00:00Z",
+        "dosage_text": "Aspirin 81mg oral tablet once daily"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance",
+        "id": "alg-penicillin",
+        "code": {
+          "coding": [{"system": "http://snomed.info/sct", "code": "70618001", "display": "Penicillin"}],
+          "text": "Penicillin"
+        },
+        "criticality": "high",
+        "type": "allergy",
+        "reaction_manifestation": ["Urticaria", "Skin rash"]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "proc-hip",
+        "code": {
+          "coding": [{"system": "http://www.ama-assn.org/go/cpt", "code": "27130", "display": "Total hip arthroplasty"}],
+          "text": "Arthroplasty, acetabular and proximal femoral prosthetic replacement"
+        },
+        "status": "preparation"
+      }
+    }
+  ]
+}
